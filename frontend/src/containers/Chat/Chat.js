@@ -21,7 +21,7 @@ const Chat = () => {
                 setMessages(prevState => ([
                     ...prevState,
                     decodedMessage.data
-                ]))
+                ]));
             }
         };
 
@@ -44,7 +44,7 @@ const Chat = () => {
         <div>
             <button onClick={sendMessage}>Test message sending by socket</button>
             Chat:
-            {messages.map(item => <div key={item._id}>{item.message}</div>)}
+            {messages.map(item => <div key={item._id}>{item.author.username}: {item.message} </div>)}
         </div>
     );
 };
