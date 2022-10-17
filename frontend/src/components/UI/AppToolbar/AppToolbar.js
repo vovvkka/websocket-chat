@@ -3,6 +3,8 @@ import {Link} from "react-router-dom";
 import {makeStyles} from "tss-react/mui";
 import {AppBar, Container, Grid, Toolbar, Typography} from "@mui/material";
 import Anonymous from "../Anonymous/Anonymous";
+import {useSelector} from "react-redux";
+import UserMenu from "../UserMenu/UserMenu";
 
 const useStyles = makeStyles()(theme => ({
     mainLink: {
@@ -25,6 +27,7 @@ const useStyles = makeStyles()(theme => ({
 
 const AppToolbar = () => {
     const {classes} = useStyles();
+    const user = useSelector(state => state.users.user);
 
     return (
         <>
@@ -38,7 +41,7 @@ const AppToolbar = () => {
                                 </Link>
                             </Typography>
                             <Grid item>
-                                {<Anonymous/>}
+                                {user ? <UserMenu username={user.username} /> : <Anonymous/>}
                             </Grid>
                         </Grid>
                     </Toolbar>
