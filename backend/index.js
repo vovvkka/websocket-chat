@@ -33,7 +33,8 @@ app.ws('/', async ws => {
         messages = await Message
             .find()
             .sort({ datetime: -1 })
-            .limit(20);
+            .limit(30)
+            .populate('author', 'username');
         console.log('Successfully received messages for the new client');
     } catch(e) {
         console.error('Error while getting messages for the new client:', e);
@@ -59,7 +60,7 @@ app.ws('/', async ws => {
                         author: decodedMessage.data.author,
                         message: decodedMessage.data.message,
                         datetime: dayjs().format('h:mm:ss A')
-                    });
+                    }).populate('author', 'username');
                     await newMessage.save();
                     Object.keys(activeConnections).forEach(connId => {
                         const conn = activeConnections[connId];
