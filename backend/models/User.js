@@ -39,13 +39,12 @@ const UserSchema = new Schema({
 UserSchema.pre('save', async function(next) {
     if(!this.isModified('password')) return  next();
     const salt = await bcrypt.genSalt(SALT_WORK_FACTOR);
-    const hash = await bcrypt.hash(this.password,salt);
-    this.password = hash;
+    this.password = await bcrypt.hash(this.password, salt);
     next();
 });
 
 UserSchema.set('toJSON',{
-    transform:(doc, ret, options) => {
+    transform:(doc, ret) => {
         delete ret.password;
         return ret;
     }

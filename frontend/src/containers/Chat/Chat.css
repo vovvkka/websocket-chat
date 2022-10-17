@@ -1,0 +1,21 @@
+.online {
+    border: 1px solid black;
+    height: 80vh;
+    padding: 15px;
+}
+
+.chat-block {
+    border: 1px solid black;
+    margin: 0 20px;
+    width: 80%;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.messages {
+    height: 60vh;
+    overflow-y: scroll;
+    border-bottom: 1px solid black;
+}
