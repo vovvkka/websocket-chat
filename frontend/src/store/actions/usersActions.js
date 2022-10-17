@@ -6,6 +6,8 @@ export const REGISTER_USER_SUCCESS = 'REGISTER_USER_SUCCESS';
 export const REGISTER_USER_FAILURE = 'REGISTER_USER_FAILURE';
 export const CLEAR_REGISTER_ERRORS = 'CLEAR_REGISTER_ERRORS';
 
+export const LOGOUT_USER = 'LOGOUT_USER';
+
 const registerUserRequest = () => ({type: REGISTER_USER_REQUEST});
 const registerUserSuccess = (user) => ({type: REGISTER_USER_SUCCESS, payload: user});
 const registerUserFailure = (e) => ({type: REGISTER_USER_FAILURE, payload: e});
@@ -28,4 +30,17 @@ export const registerUser = userData => {
             }
         }
     };
+};
+
+export const logoutUser = () => {
+    return async (dispatch) => {
+        try {
+            await axiosApi.delete('/users/sessions');
+
+            dispatch({type: LOGOUT_USER});
+            dispatch(historyPush('/'));
+        } catch (e) {
+
+        }
+    }
 };
