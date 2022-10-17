@@ -23,6 +23,7 @@ const activeConnections = {};
 app.ws('/chat', (ws) => {
     const id = nanoid();
     activeConnections[id] = ws;
+    console.log('NEW, id =', id);
 
     ws.on('close', () => {
         console.log('client disconnect');

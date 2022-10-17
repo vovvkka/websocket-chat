@@ -5,6 +5,10 @@ const Chat = () => {
 
     useEffect(() => {
         ws.current = new WebSocket('ws://localhost:8000/chat');
+
+        return () => {
+            ws.current.close();
+        }
     }, []);
 
     return (
