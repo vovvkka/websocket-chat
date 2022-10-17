@@ -5,6 +5,7 @@ const exitHook = require('async-exit-hook');
 const config = require('./config');
 
 const users = require('./app/users');
+const {nanoid} = require("nanoid");
 
 const app = express();
 require('express-ws')(app);
@@ -16,6 +17,18 @@ app.use(express.json());
 app.use(cors());
 
 app.use('/users', users);
+
+const activeConnections = {};
+
+app.ws('/chat', (ws) => {
+    const id = nanoid();
+    activeConnections[id] = ws;
+
+    ws.on('close', () => {
+        console.log('client disconnect');
+        delete activeConnections[id];
+    });
+});
 
 const run = async () => {
     await mongoose.connect(config.mongo.db, config.mongo.options);

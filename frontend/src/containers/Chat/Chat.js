@@ -1,9 +1,15 @@
-import React from 'react';
+import React, {useEffect, useRef} from 'react';
 
 const Chat = () => {
+    const ws = useRef(null);
+
+    useEffect(() => {
+        ws.current = new WebSocket('ws://localhost:8000/chat');
+    }, []);
+
     return (
         <div>
-            oerkjop
+            Here will be chat
         </div>
     );
 };

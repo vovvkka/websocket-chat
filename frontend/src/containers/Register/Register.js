@@ -4,7 +4,6 @@ import {makeStyles} from "tss-react/mui";
 import {LockOutlined} from "@mui/icons-material";
 import FormElement from "../../components/UI/FormElement/FormElement";
 import {useDispatch, useSelector} from "react-redux";
-// import {clearRegisterErrors, registerUser} from "../store/actions/usersActions";
 import ButtonWithProgress from "../../components/UI/ButtonWithProgress/ButtonWithProgress";
 import {Link as RouterLink} from 'react-router-dom';
 import {clearRegisterErrors, registerUser} from "../../store/actions/usersActions";
@@ -64,7 +63,7 @@ const Register = () => {
 
     const getFieldError = fieldName => {
         try {
-            return error.error[fieldName].message;
+            return error.errors[fieldName].message;
         } catch {
             return undefined;
         }
@@ -77,7 +76,7 @@ const Register = () => {
                     <LockOutlined/>
                 </Avatar>
                 <Typography component="h1" variant="h6" sx={{marginBottom: '20px'}}>
-                    Sign up
+                    Register
                 </Typography>
 
                 <Grid
