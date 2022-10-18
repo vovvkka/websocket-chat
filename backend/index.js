@@ -22,6 +22,7 @@ app.use(cors());
 app.use('/users', users);
 
 const activeConnections = {};
+let onlineUsers = [];
 
 app.ws('/chat', async (ws, req) => {
     const id = nanoid();
@@ -30,6 +31,10 @@ app.ws('/chat', async (ws, req) => {
 
     let messages = [];
     let user = await User.findOne({token: req.query.token});
+
+    if (!onlineUsers.find(onlineUser => onlineUser._id.toString() === user._id.toString())) {
+        onlineUsers = [...onlineUsers, user];
+    }
 
     if (!user) {
         console.log('User not found!');
@@ -48,12 +53,33 @@ app.ws('/chat', async (ws, req) => {
 
     ws.send(JSON.stringify({
         type: 'CONNECTED',
-        data: {messages}
+        data: {messages, onlineUsers},
     }));
+
+    Object.keys(activeConnections).forEach(connId => {
+        const conn = activeConnections[connId];
+
+        conn.send(JSON.stringify({
+            type: 'CHANGE_ONLINE_LIST',
+            data: {onlineUsers},
+        }));
+    });
 
     ws.on('close', () => {
         console.log('Client disconnected! id=', id);
         delete activeConnections[id];
+
+        const deletingUser = onlineUsers.find(onlineUser => onlineUser._id === user._id);
+        onlineUsers = onlineUsers.filter(onlineUser => onlineUser._id.toString() !== deletingUser._id.toString());
+
+        Object.keys(activeConnections).forEach(connId => {
+            const conn = activeConnections[connId];
+
+            conn.send(JSON.stringify({
+                type: 'CHANGE_ONLINE_LIST',
+                data: {onlineUsers},
+            }));
+        });
     });
 
     ws.on('message', async msg => {

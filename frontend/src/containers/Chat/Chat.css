@@ -1,11 +1,9 @@
 .online {
-    border: 1px solid black;
     height: 80vh;
     padding: 15px;
 }
 
 .chat-block {
-    border: 1px solid black;
     margin: 0 20px;
     width: 80%;
     padding: 15px;
@@ -16,6 +14,7 @@
 
 .messages {
     height: 60vh;
+    padding: 15px;
     overflow-y: scroll;
-    border-bottom: 1px solid black;
+    border-bottom: 1px solid #b4b4b4;
 }
