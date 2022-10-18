@@ -32,8 +32,11 @@ app.ws('/chat', async (ws, req) => {
     let messages = [];
     let user = await User.findOne({token: req.query.token});
 
-    if (!onlineUsers.find(onlineUser => onlineUser._id.toString() === user._id.toString())) {
-        onlineUsers = [...onlineUsers, user];
+    if (!onlineUsers.find(onlineUser => onlineUser.user === user.username)) {
+        onlineUsers = [...onlineUsers, {user: user.username, sessions: 1}];
+    } else {
+        const index = onlineUsers.findIndex(onlineUser => onlineUser.user === user.username);
+        onlineUsers[index].sessions += 1;
     }
 
     if (!user) {
@@ -69,8 +72,15 @@ app.ws('/chat', async (ws, req) => {
         console.log('Client disconnected! id=', id);
         delete activeConnections[id];
 
-        const deletingUser = onlineUsers.find(onlineUser => onlineUser._id === user._id);
-        onlineUsers = onlineUsers.filter(onlineUser => onlineUser._id.toString() !== deletingUser._id.toString());
+        const deletingUser = onlineUsers.find(onlineUser => onlineUser.user === user.username);
+        const deletingUserIndex = onlineUsers.findIndex(onlineUser => onlineUser.user === user.username);
+
+        if (deletingUser?.sessions >= 2) {
+            onlineUsers[deletingUserIndex].sessions -= 1;
+            return;
+        }
+
+        onlineUsers = onlineUsers.filter(onlineUser => onlineUser.user !== deletingUser.user);
 
         Object.keys(activeConnections).forEach(connId => {
             const conn = activeConnections[connId];

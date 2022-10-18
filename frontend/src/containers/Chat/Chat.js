@@ -69,7 +69,7 @@ const Chat = () => {
             <div className='online'>
                 <Typography variant='h4'>Online users</Typography>
                 {onlineUsers.map(user => (
-                    <p key={user._id}>{user.username}</p>
+                    <p key={user}>{user.user}</p>
                 ))}
             </div>
             <div className='chat-block'>
