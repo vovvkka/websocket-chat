@@ -8,6 +8,7 @@ const users = require('./app/users');
 const {nanoid} = require("nanoid");
 const dayjs = require('dayjs');
 const Message = require("./models/Message");
+const User = require("./models/User");
 
 const app = express();
 require('express-ws')(app);
@@ -22,27 +23,32 @@ app.use('/users', users);
 
 const activeConnections = {};
 
-app.ws('/', async ws => {
-    let messages = []
+app.ws('/chat', async (ws, req) => {
     const id = nanoid();
     console.log('Client connected id=', id);
     activeConnections[id] = ws;
 
-    console.log('Request messages from database for the new connected client');
+    let messages = [];
+    let user = await User.findOne({token: req.query.token});
+
+    if (!user) {
+        console.log('User not found!');
+        delete activeConnections[id];
+    }
+
     try {
         messages = await Message
             .find()
-            .sort({ datetime: -1 })
+            .sort({datetime: 1})
             .limit(30)
             .populate('author', 'username');
-        console.log('Successfully received messages for the new client');
-    } catch(e) {
-        console.error('Error while getting messages for the new client:', e);
+    } catch (e) {
+        console.error(e);
     }
 
     ws.send(JSON.stringify({
         type: 'CONNECTED',
-        data: { messages }
+        data: {messages}
     }));
 
     ws.on('close', () => {
@@ -54,22 +60,25 @@ app.ws('/', async ws => {
         const decodedMessage = JSON.parse(msg);
 
         switch (decodedMessage.type) {
-            case 'SEND_MESSAGE':
+            case 'CREATE_MESSAGE':
                 try {
                     const newMessage = await new Message({
-                        author: decodedMessage.data.author,
+                        author: user._id,
                         message: decodedMessage.data.message,
                         datetime: dayjs().format('h:mm:ss A')
                     }).populate('author', 'username');
+
                     await newMessage.save();
+
                     Object.keys(activeConnections).forEach(connId => {
                         const conn = activeConnections[connId];
+
                         conn.send(JSON.stringify({
                             type: 'NEW_MESSAGE',
                             data: newMessage
                         }));
                     });
-                } catch(e) {
+                } catch (e) {
                     console.error(e);
                 }
                 break;

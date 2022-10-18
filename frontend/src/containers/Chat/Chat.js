@@ -1,14 +1,18 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {useSelector} from "react-redux";
+import {Button, Grid, TextField, Typography} from "@mui/material";
+import Message from "../../components/Message/Message";
+import './Chat.css';
 
 const Chat = () => {
     const ws = useRef(null);
     const user = useSelector(state => state.users.user);
 
     const [messages, setMessages] = useState([]);
+    const [messageText, setMessageText] = useState('');
 
     useEffect(() => {
-        ws.current = new WebSocket('ws://localhost:8000');
+        ws.current = new WebSocket('ws://localhost:8000/chat?token=' + user.token);
 
         ws.current.onmessage = event => {
             const decodedMessage = JSON.parse(event.data);
@@ -27,25 +31,55 @@ const Chat = () => {
 
         return () => {
             ws.current.close();
-        }
-    }, []);
+        };
+    }, [user.token]);
 
-    const sendMessage = () => {
+    const sendMessage = e => {
+        e.preventDefault();
+
         ws.current.send(JSON.stringify({
-            type: 'SEND_MESSAGE',
+            type: 'CREATE_MESSAGE',
             data: {
-                author: user._id,
-                message: 'Message text'
+                author: user.token,
+                message: messageText
             }
         }));
     };
 
     return (
-        <div>
-            <button onClick={sendMessage}>Test message sending by socket</button>
-            Chat:
-            {messages.map(item => <div key={item._id}>{item.author.username}: {item.message} </div>)}
-        </div>
+        <Grid container justifyContent='center' sx={{flexWrap: 'nowrap'}}>
+            <div className='online'>
+                <Typography variant='h4'>Online users</Typography>
+            </div>
+            <div className='chat-block'>
+                <div className='chat'>
+                    <Typography variant='h4'>Chat room</Typography>
+                </div>
+                <div className='messages'>
+                    {
+                        messages.map(msg => (
+                            <Message
+                                key={msg._id}
+                                user={msg.author.username}
+                                message={msg.message}
+                            />
+                        ))
+                    }
+                </div>
+                <form onSubmit={sendMessage}>
+                    <Grid container alignItems='center'>
+                        <TextField
+                            fullWidth={false}
+                            label='Message'
+                            sx={{marginX: '20px'}}
+                            value={messageText}
+                            onChange={(e) => setMessageText(e.target.value)}
+                        />
+                        <Button variant='contained' size='large' type='submit'>Send</Button>
+                    </Grid>
+                </form>
+            </div>
+        </Grid>
     );
 };
 
