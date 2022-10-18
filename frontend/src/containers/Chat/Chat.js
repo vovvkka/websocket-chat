@@ -10,6 +10,7 @@ const Chat = () => {
 
     const [messages, setMessages] = useState([]);
     const [messageText, setMessageText] = useState('');
+    const [onlineUsers, setOnlineUsers] = useState([]);
 
     useEffect(() => {
         ws.current = new WebSocket('ws://localhost:8000/chat?token=' + user.token);
@@ -19,6 +20,7 @@ const Chat = () => {
 
             if (decodedMessage.type === 'CONNECTED') {
                 setMessages(decodedMessage.data.messages);
+                setOnlineUsers(decodedMessage.data.onlineUsers);
             }
 
             if (decodedMessage.type === 'NEW_MESSAGE') {
@@ -26,6 +28,10 @@ const Chat = () => {
                     ...prevState,
                     decodedMessage.data
                 ]));
+            }
+
+            if (decodedMessage.type === 'NEW_ONLINE_USER') {
+                setOnlineUsers(decodedMessage.data.onlineUsers);
             }
         };
 
@@ -50,6 +56,9 @@ const Chat = () => {
         <Grid container justifyContent='center' sx={{flexWrap: 'nowrap'}}>
             <div className='online'>
                 <Typography variant='h4'>Online users</Typography>
+                {onlineUsers.map(user => (
+                    <p key={user._id}>{user.username}</p>
+                ))}
             </div>
             <div className='chat-block'>
                 <div className='chat'>
