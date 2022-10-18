@@ -12,6 +12,16 @@ const Chat = () => {
     const [messageText, setMessageText] = useState('');
     const [onlineUsers, setOnlineUsers] = useState([]);
 
+    const messagesEndRef = useRef(null);
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
+
     useEffect(() => {
         ws.current = new WebSocket('ws://localhost:8000/chat?token=' + user.token);
 
@@ -50,6 +60,8 @@ const Chat = () => {
                 message: messageText
             }
         }));
+
+        setMessageText('');
     };
 
     return (
@@ -74,6 +86,7 @@ const Chat = () => {
                             />
                         ))
                     }
+                    <div ref={messagesEndRef}/>
                 </div>
                 <form onSubmit={sendMessage}>
                     <Grid container alignItems='center'>
