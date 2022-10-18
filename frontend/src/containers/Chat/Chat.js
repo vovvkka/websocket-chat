@@ -30,7 +30,7 @@ const Chat = () => {
                 ]));
             }
 
-            if (decodedMessage.type === 'NEW_ONLINE_USER') {
+            if (decodedMessage.type === 'CHANGE_ONLINE_LIST') {
                 setOnlineUsers(decodedMessage.data.onlineUsers);
             }
         };
