@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "seed": "node fixtures.js",
     "start": "node index.js",
     "dev": "nodemon index.js"
   },

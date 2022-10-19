@@ -118,9 +118,33 @@ app.ws('/chat', async (ws, req) => {
                     console.error(e);
                 }
                 break;
+
+            case 'DELETE_MESSAGE':
+                if (user.role !== 'moderator') {
+                    console.log('You dont have rights!');
+                    return;
+                }
+
+                try {
+                    await Message.deleteOne({_id: decodedMessage.data.id});
+
+                    Object.keys(activeConnections).forEach(connId => {
+                        const conn = activeConnections[connId];
+
+                        conn.send(JSON.stringify({
+                            type: 'DELETED_MESSAGE',
+                            data: decodedMessage.data.id
+                        }));
+                    });
+                } catch (e) {
+                    console.error(e);
+                }
+                break;
+
             default:
                 console.log('Unknown type:', decodedMessage.type);
         }
+
         ws.send(msg);
     });
 });
