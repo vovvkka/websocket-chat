@@ -39,6 +39,8 @@ const run = async () => {
         message: 'I`m here)',
         datetime: '13:12:02 PM'
     });
+
+    await mongoose.connection.close();
 };
 
 run().catch(console.error);

@@ -15,7 +15,7 @@ const Chat = () => {
     const messagesEndRef = useRef(null);
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        messagesEndRef.current?.scrollIntoView({behavior: "smooth"});
     };
 
     useEffect(() => {
@@ -43,6 +43,12 @@ const Chat = () => {
             if (decodedMessage.type === 'CHANGE_ONLINE_LIST') {
                 setOnlineUsers(decodedMessage.data.onlineUsers);
             }
+
+            if (decodedMessage.type === 'DELETED_MESSAGE') {
+                setMessages(prev => ([
+                    ...prev.filter(msg => msg._id !== decodedMessage.data)
+                ]));
+            }
         };
 
         return () => {
@@ -64,12 +70,19 @@ const Chat = () => {
         setMessageText('');
     };
 
+    const deleteMessage = id => {
+        ws.current.send(JSON.stringify({
+            type: 'DELETE_MESSAGE',
+            data: {id}
+        }));
+    };
+
     return (
         <Grid container justifyContent='center' sx={{flexWrap: 'nowrap'}}>
             <div className='online'>
                 <Typography variant='h4'>Online users</Typography>
-                {onlineUsers.map(user => (
-                    <p key={user}>{user.user}</p>
+                {onlineUsers.map((user, idx) => (
+                    <p key={user + idx}>{user.user}</p>
                 ))}
             </div>
             <div className='chat-block'>
@@ -80,9 +93,11 @@ const Chat = () => {
                     {
                         messages.map(msg => (
                             <Message
-                                key={msg._id}
+                                key={msg._id + msg.author.username}
+                                role={user.role}
                                 user={msg.author.username}
                                 message={msg.message}
+                                onDelete={() => deleteMessage(msg._id)}
                             />
                         ))
                     }
